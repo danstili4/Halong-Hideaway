@@ -18,6 +18,10 @@ TOUR_FILES = {t['file'] for t in TOURS.values()} | {'tours.html'}
 
 
 def img(file, alt, cls='shot feather', lazy=True):
+    if file.startswith('g-'):  # Dan's own photos, stored with the site
+        base = f'assets/media/gallery/{file}'
+        return (f'<figure class="{cls}"><img src="{base}.jpg" srcset="{base}-sm.jpg 800w, {base}.jpg 1500w" '
+                f'sizes="(max-width: 900px) 92vw, 45vw" alt="{alt}" loading="lazy" decoding="async"></figure>')
     lz = ' loading="lazy"' if lazy else ''
     oe = "this.parentNode.style.display='none'"
     return (f'<figure class="{cls}"><img src="{IMG}{file}" alt="{alt}"{lz} '
@@ -154,7 +158,7 @@ home = f'''
       <h2 class="line">Coming alone? <b>Good.</b></h2>
       <p class="lede">Same boat, same beach, same party. By the last morning, you're paddling with people who'll be in your group chat for years.</p>
     </div>
-    {img('hideaway.cruise.halong.crew.jpg', 'The Hideaway crew with guests on board')}
+    {img('g-beach-group', 'A big group of Hideaway guests on the beach next to the day boat')}
   </section>
 
   <section class="beat solo" data-stop="golden">
@@ -190,7 +194,7 @@ about = f'''
       <p class="body" style="color:inherit">Halong Bay is beautiful, and busy. We skip the crowds and head for Lan Ha Bay and Cat Ba Island: calmer water, empty beaches and the view from the top of Cat Ba National Park.</p>
       <p class="body">Your guide fills you in on life on the bay along the way.</p>
     </div>
-    {img('hideaway.cruise.halong.bay.vietnam.jpg', 'The Hideaway cruise among the islands of Lan Ha Bay')}
+    {img('g-boat', 'The Hideaway Cruise anchored among the limestone islands of Lan Ha Bay')}
   </section>
 
   <section class="split flip" data-stop="midday" aria-labelledby="deck">
@@ -203,7 +207,7 @@ about = f'''
         <li><b>1</b><span>Dance floor. You'll find it after the BBQ.</span></li>
       </ul>
     </div>
-    {img('hideaway.cruise.jaccuzi2.jpg', 'Guests in the deck jacuzzi on the Hideaway cruise')}
+    {img('g-deck', 'Guests with drinks on the top deck at sunset, islands behind them')}
   </section>
 
   <section class="block" data-stop="sunset" aria-labelledby="eat">
@@ -305,7 +309,7 @@ DAY1 = f'''
         <li><time>Arrival</time><p>Lunch on board, then find your cabin.</p></li>
         <li><time>Afternoon</time><p>A smaller boat takes you to a quiet beach. <strong>Jump off the boat, ride the banana tube, play volleyball,</strong> or sit in the sand with a cold beer. Then back on board for the jacuzzis.</p></li>
       </ol>
-      {img('hideaway.tour.swimming.jpg', 'Guests swimming off the boat in Lan Ha Bay')}
+      {img('g-backflip', 'A guest backflipping off the boat into the bay')}
     </section>
 
     <section class="chapter" data-stop="sunset" aria-label="Day one, evening">
@@ -321,7 +325,7 @@ DAY1 = f'''
         <li><time>7:00</time><p>BBQ dinner on deck.</p></li>
         <li><time>Later</time><p>Dance floor, karaoke, beer pong, and a boat full of people you met this morning. Then you sleep on the water.</p></li>
       </ol>
-      {img('hideaway.cruise.halong.crew.jpg', 'The Hideaway crew with guests on board', 'shot feather low')}
+      {img('g-dance', 'Guests dancing on the glowing dance floor', 'shot feather low')}
     </section>'''
 
 
@@ -393,7 +397,7 @@ tour2 = head(2, '2 days,', 'one night.', 'One night on the bay with the best bit
         <li><time>10:30</time><p>Lunch, then back to Hanoi.</p></li>
         <li><time>4:30</time><p>Back at the hostel.</p></li>
       </ol>
-      {img('Kayaking-in-Halong-Bay-Vietnam-Hideaway-Tour(1).jpg', 'Kayaking between limestone karsts in Halong Bay')}
+      {img('g-kayaks', 'Two kayaks paddling across turquoise water beneath a limestone cliff')}
     </section>
   </div>
 ''' + included(['One night in your cabin on the Hideaway', 'Lunch and dinner on day one, breakfast and lunch on day two'] + BASE_INCL[:1] + ['Kayaking, banana tubing, swimming and beach volleyball'] + BASE_INCL[1:], EXCL, 2) + before(2) + others(2)
@@ -427,7 +431,7 @@ tour3 = head(3, '3 days,', 'two nights.', 'The full Hideaway: two sunset parties
         <li><time>10:30</time><p>Last lunch on board, then back to Hanoi.</p></li>
         <li><time>4:30</time><p>Back at the hostel, with a camera roll full of photos and a few new numbers.</p></li>
       </ol>
-      {img('Kayaking-in-Halong-Bay-Vietnam-Hideaway-Tour(1).jpg', 'Kayaking between limestone karsts in Halong Bay')}
+      {img('g-kayaks', 'Two kayaks paddling across turquoise water beneath a limestone cliff')}
     </section>
   </div>
 ''' + included(['Two nights in your cabin on the Hideaway', 'Every meal on the itinerary'] + BASE_INCL[:1] + ['Cycling, trekking, kayaking, banana tubing, swimming and beach volleyball'] + BASE_INCL[1:], EXCL, 3) + before(3) + others(3)
@@ -442,7 +446,7 @@ tour6 = head(6, 'The bay,', 'then the mountains.', 'Two sides of northern Vietna
         <li><time>Day 3</time><p>Morning kayaking if you're up for it, lunch on board, back in Hanoi around 4:30pm.</p></li>
       </ol>
       <p class="route-link"><a class="more" href="tour-3-days.html">See the cruise hour by hour</a></p>
-      {img('hideaway.cruise.jaccuzi2.jpg', 'Guests in the deck jacuzzi on the Hideaway cruise')}
+      {img('g-banana', 'Guests laughing on a banana boat in front of karst islands')}
     </section>
 
     <section class="chapter" data-stop="night" aria-label="Night bus north">
