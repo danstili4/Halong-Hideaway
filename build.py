@@ -71,7 +71,7 @@ def shell(file, title, desc, body, extra=''):
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/site.css">
-<script>document.documentElement.classList.add('js')</script>
+<script>if('IntersectionObserver' in window)document.documentElement.classList.add('js')</script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -577,6 +577,14 @@ pages = {
     'tour-6-days.html': ('6 days with the Ha Giang Loop | Halong Hideaway', 'The full Hideaway cruise plus three days riding the Ha Giang Loop. From 8,800,000₫.', tour6, bookbar(6)),
     'gallery.html': ('Gallery | Halong Hideaway', 'Photos and video from the Halong Hideaway cruise and the Ha Giang Loop.', gallery, VIEWER),
 }
+import hashlib, re as _re
+def _fp(m):
+    path = m.group(2)
+    p = OUT / path
+    if not p.exists(): return m.group(0)
+    return f'{m.group(1)}{path}?v={hashlib.md5(p.read_bytes()).hexdigest()[:8]}'
+def bust(html):
+    return _re.sub(r'((?:src|href|poster|data-src|data-full)="|, |srcset=")(assets/[^"?, ]+)', _fp, html)
 for f, (t, d, b, x) in pages.items():
-    (OUT / f).write_text(shell(f, t, d, b, x))
+    (OUT / f).write_text(bust(shell(f, t, d, b, x)))
 print('built', len(pages))

@@ -82,7 +82,8 @@
       }
     });
   }
-  stackedMQ.addEventListener('change', () => { layout(); paint(); moveReels(); });
+  const onMQ = (mq, fn) => mq.addEventListener ? mq.addEventListener('change', fn) : (mq.addListener && mq.addListener(fn));
+  onMQ(stackedMQ, () => { layout(); paint(); moveReels(); });
 
   // The sky is one long gradient painted behind the whole page. Neighbouring
   // sections blend across their full height (centre to centre), sampled densely
@@ -209,7 +210,7 @@
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && topbar.classList.contains('open')) { setMenu(false); toggle.focus(); } });
     document.addEventListener('click', e => { if (topbar.classList.contains('open') && !topbar.contains(e.target)) setMenu(false); });
     topbar.querySelectorAll('nav a').forEach(a => a.addEventListener('click', () => setMenu(false)));
-    matchMedia('(min-width: 1081px)').addEventListener('change', e => { if (e.matches) setMenu(false); });
+    onMQ(matchMedia('(min-width: 1081px)'), e => { if (e.matches) setMenu(false); });
   }
 
 
@@ -278,6 +279,34 @@
     });
     promo.addEventListener('ended', () => { if (!promo.loop) toPreview(); });
   }
+
+  /* ---------- scroll reveals (one IntersectionObserver for the whole page) ---------- */
+  // Text fades up; photos and videos only slide (never hidden), so nothing can stay invisible.
+  const revealAll = () => document.querySelectorAll('.rv, .rv-img').forEach(t => t.classList.add('in'));
+  addEventListener('error', revealAll);
+  if (!reduce && document.documentElement.classList.contains('js')) try {
+    const TEXT = 'main section:not(.hero):not(.intro):not(.tour-head):not(.gal-head) :is(.line,.title,.says,.lede,.body,.facts,.note,.hook,.ticks,.price,.badge,.choose li,.moments li,.qa > div,.spec li,.others a,.interlude,.cols > div,.days li,.chapter h2,.tour-row .big,.tour-row h2,.tour-row .buy,.actions), footer .ask, footer > div';
+    const IMGS = '.beat .shot, .split .shot, .chapter .shot, .sleep-pics .shot';
+    document.querySelectorAll(TEXT).forEach(el => { if (!el.closest('.reel-track')) el.classList.add('rv'); });
+    document.querySelectorAll(IMGS).forEach(el => el.classList.add('rv-img'));
+    document.querySelectorAll('.moments, .choose, .qa, .spec, .others, .days, .cols').forEach(list => {
+      [...list.children].forEach((c, i) => c.style.setProperty('--d', Math.min(i * 0.07, .42) + 's'));
+    });
+    const targets = document.querySelectorAll('.rv, .rv-img');
+    const io = new IntersectionObserver(entries => entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    }), {rootMargin: '0px 0px -8% 0px', threshold: .01});
+    targets.forEach(t => io.observe(t));
+  } catch (err) { revealAll(); }
+
+  /* ---------- the itinerary line draws with scroll ---------- */
+  const routes = [...document.querySelectorAll('.route')];
+  const drawRoutes = () => routes.forEach(r => {
+    const b = r.getBoundingClientRect();
+    const p = reduce ? 1 : clamp((innerHeight * .65 - b.top) / Math.max(1, b.height));
+    r.style.setProperty('--route-p', p.toFixed(3));
+  });
+  if (routes.length) { addEventListener('scroll', () => requestAnimationFrame(drawRoutes), {passive:true}); addEventListener('resize', drawRoutes); drawRoutes(); }
 
   /* ---------- tours dropdown ---------- */
   document.querySelectorAll('.dd').forEach(dd => {
