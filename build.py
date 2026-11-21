@@ -120,10 +120,8 @@ home = f'''
       <ul class="trust"><li>Leaves Hanoi daily</li><li>Bed, meals and activities included</li><li>Run by Central Backpackers and Buffalo Hostels</li></ul>
     </div>
     <figure class="hero-shot hero-promo feather">
-      <video class="loop" id="promo" autoplay muted loop playsinline preload="auto" disablepictureinpicture disableremoteplayback
-        poster="assets/media/promo-poster.jpg" aria-label="Halong Hideaway promo video: the boat, jumping in, banana tubing, kayaking, cycling Cat Ba, the party and sunset on deck">
-        <source src="assets/media/promo.mp4" type="video/mp4">
-      </video>
+      <video class="loop" id="promo" src="assets/media/promo-preview.mp4" data-full="assets/media/promo.mp4" autoplay muted loop playsinline preload="auto" disablepictureinpicture disableremoteplayback
+        poster="assets/media/promo-poster.jpg" aria-label="Halong Hideaway promo video: the boat, jumping in, banana tubing, the jacuzzi and the party"></video>
       <button class="play sound" type="button" aria-pressed="false"><svg viewBox="0 0 18 18" aria-hidden="true"><path d="M4 2.5v13l11-6.5z" fill="currentColor"/></svg><span>Watch with sound</span></button>
     </figure>
   </section>
@@ -135,10 +133,8 @@ home = f'''
       <a class="more" href="tour-3-days.html">See the full trip</a>
     </div>
     <figure class="shot feather clip">
-      <video class="loop" autoplay muted loop playsinline preload="metadata" disablepictureinpicture disableremoteplayback
-        poster="assets/media/jump-poster.jpg" aria-label="Guests jumping off the Hideaway boat into Lan Ha Bay">
-        <source src="assets/media/jump-loop.mp4" type="video/mp4">
-      </video>
+      <video class="loop" data-src="assets/media/jump-loop.mp4" muted loop playsinline preload="none" disablepictureinpicture disableremoteplayback
+        poster="assets/media/jump-poster.jpg" aria-label="Guests jumping off the Hideaway boat into Lan Ha Bay"></video>
     </figure>
   </section>
 
@@ -148,10 +144,8 @@ home = f'''
       <p class="lede">Happy hour on the top deck as the sun drops behind the islands. BBQ, then the dance floor.</p>
     </div>
     <figure class="shot feather clip">
-      <video class="loop" autoplay muted loop playsinline preload="none" disablepictureinpicture disableremoteplayback
-        poster="assets/media/sunset-poster.jpg" aria-label="Two guests toasting with drinks on deck at sunset">
-        <source src="assets/media/sunset-loop.mp4" type="video/mp4">
-      </video>
+      <video class="loop" data-src="assets/media/sunset-loop.mp4" muted loop playsinline preload="none" disablepictureinpicture disableremoteplayback
+        poster="assets/media/sunset-poster.jpg" aria-label="Two guests toasting with drinks on deck at sunset"></video>
     </figure>
   </section>
 

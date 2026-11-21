@@ -213,13 +213,18 @@
   }
 
 
-  /* ---------- looping clips: play only when on screen, respect reduced motion ---------- */
+  /* ---------- looping clips: download only when near the screen, play only while visible ---------- */
+  const saveData = !!(navigator.connection && navigator.connection.saveData);
   document.querySelectorAll('video.loop').forEach(v => {
     v.muted = true; // required for autoplay on phones
-    if (reduce) { v.removeAttribute('autoplay'); v.pause(); return; }
-    const play = () => { const p = v.play(); if (p) p.catch(() => {}); };
+    if (reduce) { v.removeAttribute('autoplay'); v.preload = 'none'; return; }
+    const play = () => {
+      if (v.dataset.src && !v.src) { v.src = v.dataset.src; v.load(); }
+      const p = v.play(); if (p) p.catch(() => {});
+    };
     if ('IntersectionObserver' in window) {
-      new IntersectionObserver(([e]) => e.isIntersecting ? play() : (v.muted && v.pause()), {rootMargin:'200px'}).observe(v);
+      new IntersectionObserver(([e]) => e.isIntersecting ? play() : (v.muted && v.pause()),
+        {rootMargin: saveData ? '0px' : '300px 0px'}).observe(v);
     } else play();
   });
 
@@ -233,7 +238,7 @@
   const canEmbed = location.protocol === 'http:' || location.protocol === 'https:';
   document.querySelectorAll('.has-preview').forEach(fig => {
     const box = fig.querySelector('.yt-preview');
-    if (!box || !canEmbed || reduce) return;
+    if (!box || !canEmbed || reduce || saveData || matchMedia('(max-width: 1024px), (pointer: coarse)').matches) return;
     const ifr = document.createElement('iframe');
     ifr.title = 'Halong Hideaway trip preview';
     ifr.tabIndex = -1;
@@ -252,60 +257,27 @@
   });
 
 
-  /* ---------- hero promo: sound on/off in place ---------- */
+  /* ---------- hero promo: a light silent preview; the full film loads only on tap ---------- */
   const promo = document.getElementById('promo'), soundBtn = document.querySelector('.play.sound');
   if (promo && soundBtn) {
     const label = soundBtn.querySelector('span');
-    soundBtn.addEventListener('click', () => {
-      if (promo.muted) {
-        promo.currentTime = 0; promo.muted = false; promo.loop = false;
-        const p = promo.play(); if (p) p.catch(() => {});
-        label.textContent = 'Mute'; soundBtn.setAttribute('aria-pressed','true');
-      } else {
-        promo.muted = true; promo.loop = true;
-        const p = promo.play(); if (p) p.catch(() => {});
-        label.textContent = 'Watch with sound'; soundBtn.setAttribute('aria-pressed','false');
-      }
-    });
-    // after one full watch with sound, go back to the silent loop
-    promo.addEventListener('ended', () => {
-      promo.muted = true; promo.loop = true; promo.currentTime = 0;
+    const previewSrc = promo.getAttribute('src'), fullSrc = promo.dataset.full;
+    const toPreview = () => {
+      promo.muted = true; promo.loop = true;
+      if (!promo.src.endsWith(previewSrc)) { promo.src = previewSrc; }
       const p = promo.play(); if (p) p.catch(() => {});
       label.textContent = 'Watch with sound'; soundBtn.setAttribute('aria-pressed','false');
+    };
+    soundBtn.addEventListener('click', () => {
+      if (!promo.muted) return toPreview();
+      label.textContent = 'Loading…';
+      promo.src = fullSrc; promo.loop = false; promo.muted = false;
+      const p = promo.play(); if (p) p.catch(() => {});
+      promo.addEventListener('playing', () => { label.textContent = 'Mute'; }, {once: true});
+      soundBtn.setAttribute('aria-pressed','true');
     });
+    promo.addEventListener('ended', () => { if (!promo.loop) toPreview(); });
   }
-
-
-  /* ---------- scroll reveals (one IntersectionObserver for the whole page) ---------- */
-  if (!reduce) {
-    const TEXT = 'main section:not(.hero):not(.intro):not(.tour-head):not(.gal-head) :is(.line,.title,.says,.lede,.body,.facts,.note,.hook,.ticks,.price,.badge,.choose li,.moments li,.qa > div,.spec li,.others a,.interlude,.cols > div,.days li,.chapter h2,.tour-row .big,.tour-row h2,.tour-row .buy,.actions), footer .ask, footer > div';
-    const IMGS = '.beat .shot, .split .shot, .chapter .shot, .sleep-pics .shot, .detail .shot:not([hidden])';
-    const els = [...document.querySelectorAll(TEXT)].filter(el => !el.closest('.reel-track'));
-    els.forEach(el => el.classList.add('rv'));
-    document.querySelectorAll(IMGS).forEach(el => el.classList.add('rv-img'));
-    // small stagger for items that sit in a list together
-    document.querySelectorAll('.moments, .choose, .qa, .spec, .others, .days, .cols').forEach(list => {
-      [...list.children].forEach((c, i) => c.style.setProperty('--d', Math.min(i * 0.07, .42) + 's'));
-    });
-    document.querySelectorAll('.rv-img').forEach(el => el.addEventListener('transitionend', e => { if (e.propertyName === 'clip-path' && el.classList.contains('in')) el.classList.add('done'); }));
-    const targets = document.querySelectorAll('.rv, .rv-img');
-    if ('IntersectionObserver' in window) {
-      const io = new IntersectionObserver(entries => entries.forEach(e => {
-        if (e.isIntersecting) { const t = e.target; t.classList.add('in'); io.unobserve(t);
-          if (t.classList.contains('rv-img')) setTimeout(() => t.classList.add('done'), 1700); }
-      }), {rootMargin: '0px 0px -8% 0px', threshold: .08});
-      targets.forEach(t => io.observe(t));
-    } else targets.forEach(t => t.classList.add('in'));
-  }
-
-  /* ---------- the itinerary line draws with scroll ---------- */
-  const routes = [...document.querySelectorAll('.route')];
-  const drawRoutes = () => routes.forEach(r => {
-    const b = r.getBoundingClientRect();
-    const p = clamp((innerHeight * .65 - b.top) / Math.max(1, b.height));
-    r.style.setProperty('--route-p', reduce ? 1 : p.toFixed(3));
-  });
-  if (routes.length) { addEventListener('scroll', () => requestAnimationFrame(drawRoutes), {passive:true}); addEventListener('resize', drawRoutes); drawRoutes(); }
 
   /* ---------- tours dropdown ---------- */
   document.querySelectorAll('.dd').forEach(dd => {
